@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int bill;
+    struct Node *next;
+};
+
+struct Node *head = NULL;
+
+void addBill(int amount) {
+    struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->bill = amount;
+    newNode->next = NULL;
+
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        struct Node *temp = head;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+    printf("Bill added: %d\n", amount);
+}
+
+void displayBills() {
+    struct Node *temp = head;
+    if (temp == NULL) {
+        printf("No bills today.\n");
+        return;
+    }
+
+    printf("Bills: ");
+    while (temp != NULL) {
+        printf("%d ", temp->bill);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+void totalSale() {
+    int sum = 0;
+    struct Node *temp = head;
+
+    while (temp != NULL) {
+        sum += temp->bill;
+        temp = temp->next;
+    }
+
+    printf("Total sale of the day: %d\n", sum);
+}
+
+void maxMin() {
+    if (head == NULL) {
+        printf("No bills available.\n");
+        return;
+    }
+
+    int max = head->bill;
+    int min = head->bill;
+
+    struct Node *temp = head->next;
+
+    while (temp != NULL) {
+        if (temp->bill > max) max = temp->bill;
+        if (temp->bill < min) min = temp->bill;
+        temp = temp->next;
+    }
+
+    printf("Maximum bill: %d\n", max);
+    printf("Minimum bill: %d\n", min);
+}
+
+int main() {
+    int choice, amount;
+
+    while (1) {
+        printf("\n1. Add Bill");
+        printf("\n2. Display Bills");
+        printf("\n3. Total Sale");
+        printf("\n4. Maximum & Minimum Bill");
+        printf("\n5. Exit");
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter bill amount: ");
+                scanf("%d", &amount);
+                addBill(amount);
+                break;
+
+            case 2:
+                displayBills();
+                break;
+
+            case 3:
+                totalSale();
+                break;
+
+            case 4:
+                maxMin();
+                break;
+
+            case 5:
+                return 0;
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+}

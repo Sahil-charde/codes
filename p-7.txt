@@ -1,0 +1,131 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Trie {
+    struct Trie *child[26];
+    int isEnd;
+};
+
+struct Trie* createNode() {
+    struct Trie *node = (struct Trie*)malloc(sizeof(struct Trie));
+    node->isEnd = 0;
+    for (int i = 0; i < 26; i++)
+        node->child[i] = NULL;
+    return node;
+}
+
+void insert(struct Trie *root, char word[]) {
+    struct Trie *temp = root;
+    for (int i = 0; word[i] != '\0'; i++) {
+        char c = word[i];
+        if (c >= 'A' && c <= 'Z') c += 32;   // convert uppercase → lowercase
+        int index = c - 'a';
+        if (index < 0 || index > 25) continue;
+
+        if (temp->child[index] == NULL)
+            temp->child[index] = createNode();
+
+        temp = temp->child[index];
+    }
+    temp->isEnd = 1;
+}
+
+int search(struct Trie *root, char word[]) {
+    struct Trie *temp = root;
+    for (int i = 0; word[i] != '\0'; i++) {
+        char c = word[i];
+        if (c >= 'A' && c <= 'Z') c += 32;
+        int index = c - 'a';
+        if (index < 0 || index > 25) continue;
+
+        if (temp->child[index] == NULL)
+            return 0;
+        temp = temp->child[index];
+    }
+    return temp->isEnd;
+}
+
+int main() {
+    struct Trie *root = createNode();
+    char word[50];
+    int choice;
+
+    char keysArray[][20] =
+        {"and","bat","ball","book","cot","cotton","internet",
+         "interview","joy","job","king","lion","man","mango","manage"};
+
+    while (1) {
+        printf("\n--- TRIE OPERATIONS ---\n");
+        printf("1. Insert from File and Search\n");
+        printf("2. Insert from Char Array and Search\n");
+        printf("3. Insert from Array and Search Words from File\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            FILE *fp = fopen("keys.txt", "r");
+            if (!fp) {
+                printf("File not found!\n");
+                continue;
+            }
+
+            while (fscanf(fp, "%s", word) != EOF)
+                insert(root, word);
+
+            fclose(fp);
+
+            printf("Enter word to search: ");
+            scanf("%s", word);
+
+            if (search(root, word))
+                printf("Found\n");
+            else
+                printf("Not Found\n");
+        }
+
+        else if (choice == 2) {
+            // Insert array words
+            for (int i = 0; i < 15; i++)
+                insert(root, keysArray[i]);
+
+            printf("Enter word to search: ");
+            scanf("%s", word);
+
+            if (search(root, word))
+                printf("Found\n");
+            else
+                printf("Not Found\n");
+        }
+
+        else if (choice == 3) {
+            // Insert all words from array
+            for (int i = 0; i < 15; i++)
+                insert(root, keysArray[i]);
+
+            FILE *fp = fopen("keys.txt", "r");
+            if (!fp) {
+                printf("File not found!\n");
+                continue;
+            }
+
+            printf("\nSearching words from file:\n");
+            while (fscanf(fp, "%s", word) != EOF) {
+                if (search(root, word))
+                    printf("%s : Found\n", word);
+                else
+                    printf("%s : Not Found\n", word);
+            }
+            fclose(fp);
+        }
+
+        else if (choice == 4)
+            break;
+
+        else
+            printf("Invalid choice!\n");
+    }
+
+    return 0;
+}

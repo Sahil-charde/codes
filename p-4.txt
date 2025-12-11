@@ -1,0 +1,189 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Song {
+    char name[50];
+    struct Song *next;
+};
+
+struct Song *head = NULL;
+
+void insertSong(char s[]) {
+    struct Song *newSong = (struct Song*)malloc(sizeof(struct Song));
+    strcpy(newSong->name, s);
+    newSong->next = NULL;
+
+    if (head == NULL) {
+        head = newSong;
+        newSong->next = head;
+    } else {
+        struct Song *temp = head;
+        while (temp->next != head)
+            temp = temp->next;
+        temp->next = newSong;
+        newSong->next = head;
+    }
+    printf("Song added: %s\n", s);
+}
+
+void deleteSong(char s[]) {
+    if (head == NULL) {
+        printf("Playlist empty!\n");
+        return;
+    }
+
+    struct Song *temp = head, *prev = NULL;
+
+    // delete head
+    if (strcmp(head->name, s) == 0) {
+        if (head->next == head) {
+            free(head);
+            head = NULL;
+            printf("Song deleted: %s\n", s);
+            return;
+        }
+        struct Song *last = head;
+        while (last->next != head)
+            last = last->next;
+
+        last->next = head->next;
+        struct Song *del = head;
+        head = head->next;
+        free(del);
+
+        printf("Song deleted: %s\n", s);
+        return;
+    }
+
+    // other nodes
+    while (temp->next != head && strcmp(temp->name, s) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (strcmp(temp->name, s) == 0) {
+        prev->next = temp->next;
+        free(temp);
+        printf("Song deleted: %s\n", s);
+    } else {
+        printf("Song not found!\n");
+    }
+}
+
+void playSongs() {
+    if (head == NULL) {
+        printf("Playlist empty!\n");
+        return;
+    }
+    struct Song *temp = head;
+    printf("Playing songs:\n");
+    do {
+        printf("%s\n", temp->name);
+        temp = temp->next;
+    } while (temp != head);
+}
+
+void searchSong(char s[]) {
+    if (head == NULL) {
+        printf("Playlist empty!\n");
+        return;
+    }
+    struct Song *temp = head;
+    do {
+        if (strcmp(temp->name, s) == 0) {
+            printf("Found: %s\n", s);
+            return;
+        }
+        temp = temp->next;
+    } while (temp != head);
+
+    printf("Song not found!\n");
+}
+
+void displayPlaylist() {
+    if (head == NULL) {
+        printf("Playlist empty!\n");
+        return;
+    }
+    struct Song *temp = head;
+    printf("Playlist: ");
+    do {
+        printf("%s -> ", temp->name);
+        temp = temp->next;
+    } while (temp != head);
+    printf("(start)\n");
+}
+
+void countSongs() {
+    if (head == NULL) {
+        printf("Total songs: 0\n");
+        return;
+    }
+    int count = 0;
+    struct Song *temp = head;
+    do {
+        count++;
+        temp = temp->next;
+    } while (temp != head);
+    printf("Total songs: %d\n", count);
+}
+
+int main() {
+    int choice;
+    char name[50];
+
+    while (1) {
+        printf("\n1. Insert Song");
+        printf("\n2. Delete Song");
+        printf("\n3. Play Songs");
+        printf("\n4. Search Song");
+        printf("\n5. Display Playlist");
+        printf("\n6. Count Songs");
+        printf("\n7. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter song: ");
+                fgets(name, 50, stdin);
+                name[strcspn(name, "\n")] = '\0';
+                insertSong(name);
+                break;
+
+            case 2:
+                printf("Enter song to delete: ");
+                fgets(name, 50, stdin);
+                name[strcspn(name, "\n")] = '\0';
+                deleteSong(name);
+                break;
+
+            case 3:
+                playSongs();
+                break;
+
+            case 4:
+                printf("Enter song to search: ");
+                fgets(name, 50, stdin);
+                name[strcspn(name, "\n")] = '\0';
+                searchSong(name);
+                break;
+
+            case 5:
+                displayPlaylist();
+                break;
+
+            case 6:
+                countSongs();
+                break;
+
+            case 7:
+                return 0;
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+}

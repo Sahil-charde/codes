@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Employee {
+    int salary;
+    char name[50];
+    struct Employee *left, *right;
+};
+
+// create new node
+struct Employee* createNode(char name[], int salary) {
+    struct Employee* newNode = (struct Employee*)malloc(sizeof(struct Employee));
+    strcpy(newNode->name, name);
+    newNode->salary = salary;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// insert based on salary
+struct Employee* insert(struct Employee* root, char name[], int salary) {
+    if (root == NULL)
+        return createNode(name, salary);
+
+    if (salary < root->salary)
+        root->left = insert(root->left, name, salary);
+    else
+        root->right = insert(root->right, name, salary);
+
+    return root;
+}
+
+// inorder traversal
+void inorder(struct Employee* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        printf("Name: %s\tSalary: %d\n", root->name, root->salary);
+        inorder(root->right);
+    }
+}
+
+// find min salary employee
+struct Employee* findMin(struct Employee* root) {
+    while (root && root->left != NULL)
+        root = root->left;
+    return root;
+}
+
+// find max salary employee
+struct Employee* findMax(struct Employee* root) {
+    while (root && root->right != NULL)
+        root = root->right;
+    return root;
+}
+
+// calculate total salary
+int totalSalary(struct Employee* root) {
+    if (root == NULL)
+        return 0;
+    return root->salary + totalSalary(root->left) + totalSalary(root->right);
+}
+
+int main() {
+    struct Employee* root = NULL;
+    int choice, salary;
+    char name[50];
+
+    while (1) {
+        printf("\n--- Employee Database Menu ---\n");
+        printf("1. Insert Employee\n");
+        printf("2. Display Employees (Sorted by Salary)\n");
+        printf("3. Show Employee with Min & Max Salary\n");
+        printf("4. Show Total Salary Expense\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter Employee Name: ");
+                scanf("%s", name);
+                printf("Enter Salary: ");
+                scanf("%d", &salary);
+                root = insert(root, name, salary);
+                printf("Employee added successfully!\n");
+                break;
+
+            case 2:
+                if (root == NULL)
+                    printf("No employee records.\n");
+                else {
+                    printf("\nEmployees sorted by Salary:\n");
+                    inorder(root);
+                }
+                break;
+
+            case 3:
+                if (root == NULL)
+                    printf("No data available.\n");
+                else {
+                    struct Employee* min = findMin(root);
+                    struct Employee* max = findMax(root);
+                    printf("\nEmployee with Minimum Salary: %s (%d)\n", min->name, min->salary);
+                    printf("Employee with Maximum Salary: %s (%d)\n", max->name, max->salary);
+                }
+                break;
+
+            case 4:
+                printf("Total Monthly Salary Expense: %d\n", totalSalary(root));
+                break;
+
+            case 5:
+                exit(0);
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+}
